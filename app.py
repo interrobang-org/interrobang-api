@@ -78,28 +78,27 @@ def summarize(text):
         return r.json()["err"]
     return r.json()["output"]
 
-@app.route('/quiz/<article_name>/', methods = ['GET'])
-def get_quiz(article_name):
+# @app.route('/quiz/<article_name>/', methods = ['GET'])
+# def get_quiz(article_name):
 
-    _resp = []
+#     _resp = []
 
-    a = Article(article_name)
+#     a = Article(article_name)
 
-    for question in a.quiz.get_ten_random():
-        _resp.append((question.text, question.gaps))
+#     for question in a.quiz.get_ten_random():
+#         _resp.append((question.text, question.gaps))
 
-    data_send = json.dumps({
-        'sentences': _resp,
-        'propers': a.quiz.get_random_propers(),
-        # 'locations': a.quiz.get_random_locations(),
-    })
-    resp = Response(data_send, status=200, mimetype='application/json')
-    #      Response("ERROR", status=500, mimetype='application/json')
+#     data_send = json.dumps({
+#         'sentences': _resp,
+#         'propers': a.quiz.get_random_propers(),
+#         # 'locations': a.quiz.get_random_locations(),
+#     })
+#     resp = Response(data_send, status=200, mimetype='application/json')
+#     #      Response("ERROR", status=500, mimetype='application/json')
 
-    resp.headers['Access-Control-Allow-Origin'] = "*"
-    return resp
+#     resp.headers['Access-Control-Allow-Origin'] = "*"
+#     return resp
 
 
 if __name__ == '__main__':
-    app.debug = True
     app.run()
