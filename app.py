@@ -39,7 +39,11 @@ def api():
     # read post inputs
     if request.headers['Content-Type'] == 'application/json':
         url = request.json["url"]
-        text = getTextFromUrl(url)
+        if request.json['text'] is None:
+            text = getTextFromUrl(url)
+        else:
+            print("Text is present in request, and will be used")
+            text = request.json['text']
         shouldSummarize = int(request.json["summarize"])
     else:
         return "header doesn't have application/json as Content-Type"
