@@ -15,10 +15,27 @@ CORS(app)
 # Instantiates a client
 client = language.LanguageServiceClient()
 
-@app.route('/api/getQ',methods=['GET','POST'])
-def api():
-    if request.method=="GET":
+@app.route('/api/summary', methods=['GET', 'POST'])
+def getSummary():
+    if request.method == "GET":
         return "This API doesn't have a GET Request's Response..."
+    # read post inputs
+    if request.headers['Content-Type'] == 'application/json':
+        text = request.json["text"]
+        summarizedText = summarize(text)
+        ret = {
+            "summary": summarizedText
+        }
+        return json.dumps(ret)
+        
+    else:
+        return "header doesn't have application/json as Content-Type"    
+
+@app.route('/api/questions', methods=['GET', 'POST'])
+def api():
+    if request.method == "GET":
+        return "This API doesn't have a GET Request's Response..."
+
     # read post inputs
     if request.headers['Content-Type'] == 'application/json':
         url = request.json["url"]
@@ -27,7 +44,6 @@ def api():
     else:
         return "header doesn't have application/json as Content-Type"
     
-
     if shouldSummarize == 1:
         text = summarize(text)
 
