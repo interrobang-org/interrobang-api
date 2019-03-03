@@ -1,6 +1,5 @@
 beautifulsoup4==4.7.1
 Flask==0.12.2
-Flask-Cors==3.0.2
 googleapis-common-protos==1.5.8
 google-api-core==1.8.0
 google-auth==1.6.3
