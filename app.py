@@ -7,8 +7,9 @@ from google.cloud.language import types
 import random
 import mechanicalsoup
 from playground_api import extractQuestions
+from flask_cors import CORS
 app = Flask(__name__)
-
+CORS(app)
 # Instantiates a client
 client = language.LanguageServiceClient()
 
