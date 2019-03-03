@@ -8,14 +8,12 @@ import random
 import mechanicalsoup
 from playground_api import extractQuestions
 from flask_cors import CORS
+
 app = Flask(__name__)
 CORS(app)
+
 # Instantiates a client
 client = language.LanguageServiceClient()
-
-# @app.route('/', methods=['GET'])
-# def index():
-#     return render_template("index.html")
 
 @app.route('/api/getQ',methods=['GET','POST'])
 def api():
@@ -32,6 +30,7 @@ def api():
 
     if shouldSummarize == 1:
         text = summarize(text)
+
     # return text
     # call question model
     # senti = getSentiment(text)
@@ -51,15 +50,6 @@ def api():
         ret["error"]=True
     
     return json.dumps(ret)
-
-# def getSentiment(text):
-#     document = types.Document(
-#         content=text,
-#         language='en',
-#         type=enums.Document.Type.PLAIN_TEXT)
-#     sentiment = client.analyze_sentiment(document=document).document_sentiment    
-#     sentiment='{}, {}'.format(sentiment.score, sentiment.magnitude)
-#     return sentiment
 
 def getEntityAnalysis(text):
     print(text)
