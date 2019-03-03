@@ -6,6 +6,7 @@ from google.cloud.language import enums
 from google.cloud.language import types
 import random
 import mechanicalsoup
+from playground_api import extractQuestions
 app = Flask(__name__)
 
 # Instantiates a client
@@ -49,8 +50,7 @@ def api():
         ret["error"]=True
     
     return json.dumps(ret)
-    # return a json response
-    # {"questions":["q1","q2","q3"]}
+
 # def getSentiment(text):
 #     document = types.Document(
 #         content=text,
@@ -87,16 +87,8 @@ def getEntityAnalysis(text):
     questions = []
     for  x in ret:
         if x["type"]!=3:
-            # print("********************",x["type"])
             i = random.randint(0,len(template_questions[str(x["type"])])-1)
-            # print("len(template_questions[str(x['type'])]) = ", len(template_questions[str(x["type"])]))
-            # print("i = " ,i)
-            # print(template_questions["1"][0])
             template_questions[str(x["type"])][i]=template_questions[str(x["type"])][i].replace("OBJECT",x["name"])
-            # print("questions = ", questions)
-            # print("template_questions = ", template_questions)
-            # print("str(x['type'])",str(x["type"]))
-            # print("i=",i)
             questions.append(template_questions[str(x["type"])][i])
     return questions
 
@@ -108,7 +100,6 @@ def getTextFromUrl(url):
     browser = mechanicalsoup.StatefulBrowser()
     browser.open(url)
     html = str(browser.get_current_page())
-    # print(type(html))
     soup = BeautifulSoup(html)
 
     # kill all script and style elements
@@ -124,50 +115,13 @@ def getTextFromUrl(url):
     # drop blank lines
     text = '\n'.join(chunk for chunk in chunks if chunk)
 
-    # print(text)
     return text
-
-# @app.route('/api/getQArray',methods=['GET','POST'])
-# def apiArray():
-#     if request.method=="GET":
-#         return "This API doesn't have a GET Request's Response..."
-#     # read post inputs
-#     urls = []
-#     text = []
-#     # shouldSummarize = [] #unnecessary variable
-#     if request.headers['Content-Type'] == 'application/json':
-
-#         for i in range(0,len(request.json)):
-            
-#             # shouldSummarize.append(int(request.json[i]["summarize"]))
-#             if int(request.json[i]["summarize"]) == 1:
-#                 urls.append(request.json[i]["text"])
-#                 text.append(getTextFromUrl(urls[i]))
-#                 text[i] = summarize(text[i])
-#             else:
-#                 urls.append(request.json[i]["text"])
-#                 text.append(getTextFromUrl(urls[i]))
-#     else:
-#         return "header doesn't have application/json as Content-Type"
-        
-#     # call question model
-
-#     # return a json response
-#     # {"questions":["q1","q2","q3"]}
-
-
-
 
 def summarize(text):
     url = "https://api.deepai.org/api/summarization"
 
     payload = str(text)
     payload = payload.replace("'","")
-    # headers = {
-    #     'api-key': "395e6583-036c-43c0-a2db-92c8e129294e",
-    #     }
-
-    # response = requests.request("POST", url, data=payload, headers=headers)
     r = requests.post(
     url,
     data={
@@ -175,34 +129,28 @@ def summarize(text):
     },
     headers={'api-key': '395e6583-036c-43c0-a2db-92c8e129294e'}
     )
-    # print(r.json())
-    # print(response.text)
     if "err" in r.json():
         print(r.json()["err"])
         return r.json()["err"]
     return r.json()["output"]
 
-# @app.route('/quiz/<article_name>/', methods = ['GET'])
-# def get_quiz(article_name):
+@app.route('/api/playground',methods=['GET','POST'])
+def playground():
+    # print("here")
+    if request.method=="GET":
+        return "This API doesn't have a GET Request's Response..."
 
-#     _resp = []
+    if request.headers['Content-Type'] == 'application/json':
+        # print("here")
+        text = request.json["text"]
+        noqs = int(request.json["noqs"])
+        # print(text,noqs)
+        q, a = extractQuestions(text,noqs)
+        ret = {"questions":q,"answers":a}
+        return json.dumps(ret)
 
-#     a = Article(article_name)
-
-#     for question in a.quiz.get_ten_random():
-#         _resp.append((question.text, question.gaps))
-
-#     data_send = json.dumps({
-#         'sentences': _resp,
-#         'propers': a.quiz.get_random_propers(),
-#         # 'locations': a.quiz.get_random_locations(),
-#     })
-#     resp = Response(data_send, status=200, mimetype='application/json')
-#     #      Response("ERROR", status=500, mimetype='application/json')
-
-#     resp.headers['Access-Control-Allow-Origin'] = "*"
-#     return resp
-
+    else:
+        return "header doesn't have application/json as Content-Type"
 
 if __name__ == '__main__':
     app.run()
